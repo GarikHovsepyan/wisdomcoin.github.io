@@ -81,8 +81,8 @@
         var deltaY = y - rect.top - rect.height / 2;
 
         // Calculate the rotation angles based on the position of the click
-        var rotateX = -deltaY / rect.height * 15; // Adjust the factor to control the perspective change
-        var rotateY = deltaX / rect.width * 15; // Adjust the factor to control the perspective change
+        var rotateX = -deltaY / rect.height * 25; // Adjust the factor to control the perspective change
+        var rotateY = deltaX / rect.width * 25; // Adjust the factor to control the perspective change
 
         // Apply the perspective transformation
         coinElement.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
@@ -93,40 +93,23 @@
         }, 200);
 
         // Increment score
-        score++;
-        // Update score text with Roman numerals
-        scoreElement.textContent = arabicToRoman(score);
+        score+=15;
+        // Update score text with Arabic numerals and commas
+        scoreElement.textContent = arabicToFormattedString(score);
 
         // Show score animation
-        showScoreAnimation("+1", x, y);
+        showScoreAnimation("+15", x, y);
     }
 
-    // Function to convert Arabic numbers to Roman numerals
-    function arabicToRoman(num) {
+    // Function to format Arabic numbers with commas
+    function formatNumberWithCommas(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // Function to convert Arabic numbers to formatted string
+    function arabicToFormattedString(num) {
         if (num <= 0) return ""; // We don't have Roman numerals for zero or negative numbers
-        var roman = "";
-        var romanNumerals = [
-            { value: 1000, numeral: "M" },
-            { value: 900, numeral: "CM" },
-            { value: 500, numeral: "D" },
-            { value: 400, numeral: "CD" },
-            { value: 100, numeral: "C" },
-            { value: 90, numeral: "XC" },
-            { value: 50, numeral: "L" },
-            { value: 40, numeral: "XL" },
-            { value: 10, numeral: "X" },
-            { value: 9, numeral: "IX" },
-            { value: 5, numeral: "V" },
-            { value: 4, numeral: "IV" },
-            { value: 1, numeral: "I" }
-        ];
-        for (var i = 0; i < romanNumerals.length; i++) {
-            while (num >= romanNumerals[i].value) {
-                roman += romanNumerals[i].numeral;
-                num -= romanNumerals[i].value;
-            }
-        }
-        return roman;
+        return formatNumberWithCommas(num);
     }
 
     // Function to show score animation
