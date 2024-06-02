@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap Bot Game</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-image: url('bg.png'); /* Add background image */
+        background-size: cover; /* Cover the entire viewport */
+        perspective: 1000px; /* Add perspective to the body */
+    }
+    #game-container {
+        text-align: center;
+    }
+    #score {
+        font-size: 18vw; /* Responsive font size */
+        margin-bottom: 30vw; /* Responsive margin */
+        font-weight: bold; /* Bold font */
+        color: white; /* White color */
+        letter-spacing: 0.2em; /* Increase letter spacing */
+    }
+    #coin {
+        cursor: pointer;
+        width: 80vw; /* Set width to 30% of display width */
+        height: auto;
+        transition: transform 0.2s ease-out; /* Add smooth transition effect */
+    }
+    .score-animation {
+        position: absolute;
+        z-index: 1;
+        font-size: 11vw; /* Larger font size */
+        font-weight: bold; /* Bold font */
+        color: white; /* White color */
+        animation: animateScore 0.5s linear forwards; /* Faster and smoother animation */
+    }
+    @keyframes animateScore {
+        0% { opacity: 1; transform: translate(0, 0) scale(1.5); }
+        100% { opacity: 0; transform: translate(0, -260px) scale(1); }
+    }
+</style>
+</head>
+<body>
+<div id="game-container">
+    <div id="score"><span id="score-value">0</span></div>
+    <img id="coin" src="coin.png" alt="Coin">
+</div>
+<script>
+    // Variables
+    var score = 0;
+    var scoreElement = document.getElementById('score-value');
+    var coinElement = document.getElementById('coin');
+    var gameContainer = document.getElementById('game-container');
+
+    // Event Listener for clicking on the coin
+    coinElement.addEventListener('click', function(event) {
+        handleClick(event.clientX, event.clientY);
+    });
+
+    // Event listener for touching the coin
+    coinElement.addEventListener('touchstart', function(event) {
+        // Prevent default behavior
+        event.preventDefault();
+        // Get touch coordinates
+        var touch = event.touches[0];
+        handleClick(touch.clientX, touch.clientY);
+    });
+
+    // Function to handle both click and touch events
+    function handleClick(x, y) {
+        // Get the coordinates of the click relative to the coin
+        var rect = coinElement.getBoundingClientRect();
+        var deltaX = x - rect.left - rect.width / 2;
+        var deltaY = y - rect.top - rect.height / 2;
+
+        // Calculate the rotation angles based on the position of the click
+        var rotateX = -deltaY / rect.height * 15; // Adjust the factor to control the perspective change
+        var rotateY = deltaX / rect.width * 15; // Adjust the factor to control the perspective change
+
+        // Apply the perspective transformation
+        coinElement.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+
+        // Reset the transformation after a short delay (200 milliseconds)
+        setTimeout(function() {
+            coinElement.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        }, 200);
+
+        // Increment score
+        score++;
+        // Update score text with Roman numerals
+        scoreElement.textContent = arabicToRoman(score);
+
+        // Show score animation
+        showScoreAnimation("+1", x, y);
+    }
+
+    // Function to convert Arabic numbers to Roman numerals
+    function arabicToRoman(num) {
+        if (num <= 0) return ""; // We don't have Roman numerals for zero or negative numbers
+        var roman = "";
+        var romanNumerals = [
+            { value: 1000, numeral: "M" },
+            { value: 900, numeral: "CM" },
+            { value: 500, numeral: "D" },
+            { value: 400, numeral: "CD" },
+            { value: 100, numeral: "C" },
+            { value: 90, numeral: "XC" },
+            { value: 50, numeral: "L" },
+            { value: 40, numeral: "XL" },
+            { value: 10, numeral: "X" },
+            { value: 9, numeral: "IX" },
+            { value: 5, numeral: "V" },
+            { value: 4, numeral: "IV" },
+            { value: 1, numeral: "I" }
+        ];
+        for (var i = 0; i < romanNumerals.length; i++) {
+            while (num >= romanNumerals[i].value) {
+                roman += romanNumerals[i].numeral;
+                num -= romanNumerals[i].value;
+            }
+        }
+        return roman;
+    }
+
+    // Function to show score animation
+    function showScoreAnimation(text, x, y) {
+        var animation = document.createElement('div');
+        animation.className = 'score-animation';
+        animation.textContent = text;
+        animation.style.left = x + 'px';
+        animation.style.top = y + 'px';
+        gameContainer.appendChild(animation);
+        // Remove animation after a short delay
+        setTimeout(function() {
+            gameContainer.removeChild(animation);
+        }, 500);
+    }
+</script>
+</body>
+</html>
